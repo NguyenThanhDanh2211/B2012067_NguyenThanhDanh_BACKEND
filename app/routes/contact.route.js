@@ -16,4 +16,7 @@ router.route("/:id")
     .put(contacts.update)
     .delete(contacts.delete);
 
+router.route("/register")
+    .post(contacts.register);
+
 module.exports = router;

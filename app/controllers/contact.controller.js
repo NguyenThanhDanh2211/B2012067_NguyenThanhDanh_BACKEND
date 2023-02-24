@@ -1,13 +1,14 @@
 const ContactService = require("../services/contact.service");
 const MongoDB = require("../utils/mongodb.util")
 const ApiError = require("../api-error");
+const User = require('../users/register.user');
 
 exports.create = async (req, res, next) => {
     if (!req.body?.name) {
         return next(new ApiError(400, "Name can not be empty"));
     }
 
-    try { 
+    try {
         const contactService = new ContactService(MongoDB.client);
         const document = await contactService.create(req.body);
         return res.send(document);
@@ -40,7 +41,7 @@ exports.findAll = async (req, res, next) => {
 exports.findOne = async (req, res, next) => {
     try {
         const contactService = new ContactService(MongoDB.client);
-        const document =await contactService.findById(req.params.id);
+        const document = await contactService.findById(req.params.id);
         if (!document) {
             return next(new ApiError(404, "Contact not found"));
         }
@@ -75,13 +76,13 @@ exports.update = async (req, res, next) => {
 };
 
 exports.delete = async (req, res, next) => {
-    try{
+    try {
         const contactService = new ContactService(MongoDB.client);
         const document = await contactService.delete(req.params.id);
         if (!document) {
             return next(new ApiError(404, "Contact not found"));
         }
-        return res.send({ message: "Contact was deleted successfully "});
+        return res.send({ message: "Contact was deleted successfully " });
     } catch (error) {
         return next(
             new ApiError(
@@ -119,3 +120,18 @@ exports.deleteAll = async (_req, res, next) => {
         );
     }
 };
+
+exports.register = async (req, res, next) => {
+    const { username, email, password } = req.body;
+    const user = new User({ username, email, password });
+
+    user.save((err) => {
+        if (err) {
+            return next(
+                new ApiError(500, "Đăng ký không thành công")
+            );
+        } else {
+            return res.send({ message: `Đăng ký thành công` });
+        }
+    });
+}
